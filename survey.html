@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>แบบประเมินความพึงพอใจการอบรม</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Prompt -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Canvas Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+  
+  <style>
+    body { font-family: 'Prompt', sans-serif; }
+    .rating-btn.active {
+      background-color: #047857 !important;
+      color: #ffffff !important;
+      border-color: #047857 !important;
+      transform: scale(1.04);
+      box-shadow: 0 4px 12px rgba(4, 120, 87, 0.25);
+    }
+  </style>
+
+  <!-- Firebase App & Realtime Database SDKs (Compat v10) -->
+  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-database-compat.js"></script>
+</head>
+<body class="bg-[#fafaf8] text-stone-800 min-h-screen pb-12 antialiased selection:bg-emerald-600 selection:text-white">
+
+  <!-- Header Banner - Minimalist & Soothing -->
+  <header class="bg-gradient-to-br from-stone-900 via-stone-800 to-stone-900 text-white py-8 px-4 shadow-sm">
+    <div class="max-w-lg mx-auto text-center space-y-2">
+      <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-xs text-stone-300 font-medium">
+        <span>🔒 ไม่ระบุตัวตน 100% · ไม่ต้องเข้าสู่ระบบ</span>
+      </div>
+      <h1 class="text-2xl font-bold tracking-tight">แบบประเมินความพึงพอใจการอบรม</h1>
+      <p class="text-stone-300 text-sm leading-relaxed">
+        ความคิดเห็นของท่านมีคุณค่าอย่างยิ่งในการพัฒนาหลักสูตรครั้งต่อไป
+      </p>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-lg mx-auto px-4 mt-6">
+
+    <!-- Already Submitted Screen (Hidden by default) -->
+    <div id="submittedView" class="hidden bg-white rounded-3xl p-6 shadow-sm border border-stone-200 text-center space-y-4">
+      <div class="w-16 h-16 bg-emerald-50 text-emerald-700 rounded-full flex items-center justify-center mx-auto text-3xl">
+        ✓
+      </div>
+      <h2 class="text-xl font-bold text-stone-900">บันทึกข้อมูลเรียบร้อยแล้ว</h2>
+      <p class="text-stone-600 text-sm">
+        ขอบพระคุณเป็นอย่างยิ่งที่สละเวลาให้ข้อมูลความคิดเห็นในการจัดอบรมครั้งนี้
+      </p>
+      <div class="pt-4 border-t border-stone-100">
+        <button id="btnResetTest" class="text-xs text-emerald-700 hover:text-emerald-900 font-medium underline">
+          กดที่นี่หากต้องการทดสอบทำแบบสอบถามใหม่อีกครั้ง
+        </button>
+      </div>
+    </div>
+
+    <!-- Survey Form View -->
+    <form id="surveyForm" class="space-y-4">
+
+      <!-- Progress bar -->
+      <div class="bg-white rounded-2xl p-3.5 border border-stone-200/80 shadow-sm flex items-center justify-between text-xs text-stone-500 font-medium">
+        <span>ความคืบหน้าการตอบ</span>
+        <span id="progressText" class="text-emerald-700 font-bold">0 / 5 ข้อ</span>
+      </div>
+
+      <!-- Question 1 -->
+      <div class="bg-white rounded-3xl p-5 border border-stone-200/80 shadow-sm space-y-3">
+        <div class="flex items-start gap-2.5">
+          <span class="w-6 h-6 rounded-full bg-stone-100 text-stone-700 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">1</span>
+          <div>
+            <h3 class="font-semibold text-stone-900 text-sm md:text-base">เนื้อหาและหัวข้อการอบรมมีความน่าสนใจและเป็นประโยชน์</h3>
+            <p class="text-xs text-stone-500 mt-0.5">เนื้อหาทันสมัย ตรงตามวัตถุประสงค์ และนำไปปรับใช้ได้จริง</p>
+          </div>
+        </div>
+        <div class="grid grid-cols-5 gap-1.5 pt-2" data-question="q1">
+          <button type="button" class="rating-btn py-3 px-1 rounded-2xl border border-stone-200 text-center hover:border-emerald-500 transition" data-score="1"><div class="text-lg">😞</div><div class="text-[11px] font-bold text-stone-700">1</div><div class="text-[9px] text-stone-400">น้อยสุด</div></button>
+          <button type="button" class="rating-btn py-3 px-1 rounded-2xl border border-stone-200 text-center hover:border-emerald-500 transition" data-score="2"><div class="text-lg">🙁</div><div class="text-[11px] font-bold text-stone-700">2</div><div class="text-[9px] text-stone-400">น้อย</div></button>
+          <button type="button" class="rating-btn py-3 px-1 rounded-2xl border border-stone-200 text-center hover:border-emerald-500 transition" data-score="3"><div class="text-lg">😐</div><div class="text-[11px] font-bold text-stone-700">3</div><div class="text-[9px] text-stone-400">ปานกลาง</div></button>
+          <button type="button" class="rating-btn py-3 px-1 rounded-2xl border border-stone-200 text-center hover:border-emerald-500 transition" data-score="4"><div class="text-lg">😊</div><div class="text-[11px] font-bold text-stone-700">4</div><div class="text-[9px] text-stone-400">มาก</div></button>
+          <button type="button" class="rating-btn py-3 px-1 rounded-2xl border border-stone-200 text-center hover:border-emerald-500 transition" data-score="5"><div class="text-lg">🤩</div><div class="text-[11px] font-bold text-stone-700">5</div><div class="text-[9px] text-stone-400">มากสุด</div></button>
+        </div>
+      </div>
+
+      <!-- Question 2 -->
+      <div class="bg-white rounded-3xl p-5 border border-stone-200/80 shadow-sm space-y-3">
+        <div class="flex items-start gap-2.5">
+          <span class="w-6 h-6 rounded-full bg-stone-100 text-stone-700 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">2</span>
+          <div>
+            <h3 class="font-semibold text-stone-900 text-sm md:text-base">วิทยากรมีความรู้ความเชี่ยวชาญและถ่ายทอดได้เข้าใจง่าย</h3>
+            <p class="text-xs text-stone-500 mt-0.5">อธิบายเนื้อหาชัดเจน ตอบข้อซักถามได้ตรงประเด็น</p>
+          </div>
+        </div>
+        <div class="grid grid-cols-5 gap-1.5 pt-2" data-question="q2">
+          <button type="button" class="rating-btn py-3 px-1 rounded-2xl border border-stone-200 text-center hover:border-emerald-500 transition" data-score="1"><div class="text-lg">😞</div><div class="text-[11px] font-bold text-stone-700">1</div><div class="text-[9px] text-stone-400">น้อยสุด</div></button>
+          <button type="button" class="rating-btn py-3 px-1 rounded-2xl border border-stone-200 text-center hover:border-emerald-500 transition" data-score="2"><div class="text-lg">🙁</div><div class="text-[11px] font-bold text-stone-700">2</div><div class="text-[9px] text-stone-400">น้อย</div></button>
+          <button type="button" class="rating-btn py-3 px-1 rounded-2xl border border-stone-200 text-center hover:border-emerald-500 transition" data-score="3"><div class="text-lg">😐</div><div class="text-[11px] font-bold text-stone-700">3</div><div class="text-[9px] text-stone-400">ปานกลาง</div></button>
+          <button type="button" class="rating-btn py-3 px-1 rounded-2xl border border-stone-200 text-center hover:border-emerald-500 transition" data-score="4"><div class="text-lg">😊</div><div class="text-[11px] font-bold text-stone-700">4</div><div class="text-[9px] text-stone-400">มาก</div></button>
+          <button type="button" class="rating-btn py-3 px-1 rounded-2xl border border-stone-200 text-center hover:border-emerald-500 transition" data-score="5"><div class="text-lg">🤩</div><div class="text-[11px] font-bold text-stone-700">5</div><div class="text-[9px] text-stone-400">มากสุด</div></button>
+        </div>
+      </div>
+
+      <!-- Question 3 -->
+      <div class="bg-white rounded-3xl p-5 border border-stone-200/80 shadow-sm space-y-3">
+        <div class="flex items-start gap-2.5">
+          <span class="w-6 h-6 rounded-full bg-stone-100 text-stone-700 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">3</span>
+          <div>
+            <h3 class="font-semibold text-stone-900 text-sm md:text-base">การจัดสรรเวลาและกำหนดการมีความเหมาะสม</h3>
+            <p class="text-xs text-stone-500 mt-0.5">ระยะเวลากระชับ เหมาะสม และตรงตามกำหนดการ</p>
+          </div>
+        </div>
+        <div class="grid grid-cols-5 gap-1.5 pt-2" data-question="q3">
+          <button type="button" class="rating-btn py-3 px-1 rounded-2xl border border-stone-200 text-center hover:border-emerald-500 transition" data-score="1"><div class="text-lg">😞</div><div class="text-[11px] font-bold text-stone-700">1</div><div class="text-[9px] text-stone-400">น้อยสุด</div></button>
+          <button type="button" class="rating-btn py-3 px-1 rounded-2xl border border-stone-200 text-center hover:border-emerald-500 transition" data-score="2"><div class="text-lg">🙁</div><div class="text-[11px] font-bold text-stone-700">2</div><div class="text-[9px] text-stone-400">น้อย</div></button>
+          <button type="button" class="rating-btn py-3 px-1 rounded-2xl border border-stone-200 text-center hover:border-emerald-500 transition" data-score="3"><div class="text-lg">😐</div><div class="text-[11px] font-bold text-stone-700">3</div><div class="text-[9px] text-stone-400">ปานกลาง</div></button>
+          <button type="button" class="rating-btn py-3 px-1 rounded-2xl border border-stone-200 text-center hover:border-emerald-500 transition" data-score="4"><div class="text-lg">😊</div><div class="text-[11px] font-bold text-stone-700">4</div><div class="text-[9px] text-stone-400">มาก</div></button>
+          <button type="button" class="rating-btn py-3 px-1 rounded-2xl border border-stone-200 text-center hover:border-emerald-500 transition" data-score="5"><div class="text-lg">🤩</div><div class="text-[11px] font-bold text-stone-700">5</div><div class="text-[9px] text-stone-400">มากสุด</div></button>
+        </div>
+      </div>
+
+      <!-- Question 4 -->
+      <div class="bg-white rounded-3xl p-5 border border-stone-200/80 shadow-sm space-y-3">
+        <div class="flex items-start gap-2.5">
+          <span class="w-6 h-6 rounded-full bg-stone-100 text-stone-700 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">4</span>
+          <div>
+            <h3 class="font-semibold text-stone-900 text-sm md:text-base">เอกสาร สไลด์ และสื่อการเรียนรู้มีคุณภาพ</h3>
+            <p class="text-xs text-stone-500 mt-0.5">สื่อการสอนอ่านเข้าใจง่าย และเครื่องมือพร้อมใช้งาน</p>
+          </div>
+        </div>
+        <div class="grid grid-cols-5 gap-1.5 pt-2" data-question="q4">
+          <button type="button" class="rating-btn py-3 px-1 rounded-2xl border border-stone-200 text-center hover:border-emerald-500 transition" data-score="1"><div class="text-lg">😞</div><div class="text-[11px] font-bold text-stone-700">1</div><div class="text-[9px] text-stone-400">น้อยสุด</div></button>
+          <button type="button" class="rating-btn py-3 px-1 rounded-2xl border border-stone-200 text-center hover:border-emerald-500 transition" data-score="2"><div class="text-lg">🙁</div><div class="text-[11px] font-bold text-stone-700">2</div><div class="text-[9px] text-stone-400">น้อย</div></button>
+          <button type="button" class="rating-btn py-3 px-1 rounded-2xl border border-stone-200 text-center hover:border-emerald-500 transition" data-score="3"><div class="text-lg">😐</div><div class="text-[11px] font-bold text-stone-700">3</div><div class="text-[9px] text-stone-400">ปานกลาง</div></button>
+          <button type="button" class="rating-btn py-3 px-1 rounded-2xl border border-stone-200 text-center hover:border-emerald-500 transition" data-score="4"><div class="text-lg">😊</div><div class="text-[11px] font-bold text-stone-700">4</div><div class="text-[9px] text-stone-400">มาก</div></button>
+          <button type="button" class="rating-btn py-3 px-1 rounded-2xl border border-stone-200 text-center hover:border-emerald-500 transition" data-score="5"><div class="text-lg">🤩</div><div class="text-[11px] font-bold text-stone-700">5</div><div class="text-[9px] text-stone-400">มากสุด</div></button>
+        </div>
+      </div>
+
+      <!-- Question 5 -->
+      <div class="bg-white rounded-3xl p-5 border border-stone-200/80 shadow-sm space-y-3">
+        <div class="flex items-start gap-2.5">
+          <span class="w-6 h-6 rounded-full bg-stone-100 text-stone-700 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">5</span>
+          <div>
+            <h3 class="font-semibold text-stone-900 text-sm md:text-base">ความพึงพอใจในภาพรวมและความคุ้มค่าในการเข้าร่วม</h3>
+            <p class="text-xs text-stone-500 mt-0.5">ได้รับความรู้ ทักษะ และแรงบันดาลใจคุ้มค่ากับเวลา</p>
+          </div>
+        </div>
+        <div class="grid grid-cols-5 gap-1.5 pt-2" data-question="q5">
+          <button type="button" class="rating-btn py-3 px-1 rounded-2xl border border-stone-200 text-center hover:border-emerald-500 transition" data-score="1"><div class="text-lg">😞</div><div class="text-[11px] font-bold text-stone-700">1</div><div class="text-[9px] text-stone-400">น้อยสุด</div></button>
+          <button type="button" class="rating-btn py-3 px-1 rounded-2xl border border-stone-200 text-center hover:border-emerald-500 transition" data-score="2"><div class="text-lg">🙁</div><div class="text-[11px] font-bold text-stone-700">2</div><div class="text-[9px] text-stone-400">น้อย</div></button>
+          <button type="button" class="rating-btn py-3 px-1 rounded-2xl border border-stone-200 text-center hover:border-emerald-500 transition" data-score="3"><div class="text-lg">😐</div><div class="text-[11px] font-bold text-stone-700">3</div><div class="text-[9px] text-stone-400">ปานกลาง</div></button>
+          <button type="button" class="rating-btn py-3 px-1 rounded-2xl border border-stone-200 text-center hover:border-emerald-500 transition" data-score="4"><div class="text-lg">😊</div><div class="text-[11px] font-bold text-stone-700">4</div><div class="text-[9px] text-stone-400">มาก</div></button>
+          <button type="button" class="rating-btn py-3 px-1 rounded-2xl border border-stone-200 text-center hover:border-emerald-500 transition" data-score="5"><div class="text-lg">🤩</div><div class="text-[11px] font-bold text-stone-700">5</div><div class="text-[9px] text-stone-400">มากสุด</div></button>
+        </div>
+      </div>
+
+      <!-- Suggestions (Optional) -->
+      <div class="bg-white rounded-3xl p-5 border border-stone-200/80 shadow-sm space-y-2">
+        <label for="suggestion" class="block font-semibold text-stone-900 text-sm">
+          ข้อเสนอแนะเพิ่มเติมเพื่อการพัฒนา (ไม่บังคับ)
+        </label>
+        <textarea id="suggestion" rows="3" class="w-full rounded-2xl border border-stone-200 p-3 text-sm focus:ring-2 focus:ring-emerald-600 focus:outline-none" placeholder="พิมพ์ข้อคิดเห็น ข้อชื่นชม หรือสิ่งที่อยากให้เพิ่มในการจัดครั้งถัดไป..."></textarea>
+      </div>
+
+      <!-- Error banner -->
+      <div id="errorAlert" class="hidden p-3 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs">
+        ⚠️ กรุณาเลือกตอบคะแนนให้ครบทั้ง 5 ข้อก่อนกดส่งแบบสอบถาม
+      </div>
+
+      <!-- Submit Button -->
+      <button type="submit" id="btnSubmit" class="w-full py-4 px-6 rounded-2xl bg-emerald-700 hover:bg-emerald-800 text-white font-medium text-base shadow-sm transition flex items-center justify-center gap-2">
+        <span>ส่งแบบประเมินความพึงพอใจ</span>
+        <span>→</span>
+      </button>
+
+    </form>
+  </main>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+      databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT_ID.appspot.com",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+
+    let db = null;
+    if (firebaseConfig.apiKey !== "YOUR_API_KEY") {
+      firebase.initializeApp(firebaseConfig);
+      db = firebase.database();
+    }
+
+    const scores = { q1: null, q2: null, q3: null, q4: null, q5: null };
+    const LOCAL_STORAGE_KEY = 'has_submitted_workshop_survey_v1';
+
+    if (localStorage.getItem(LOCAL_STORAGE_KEY)) {
+      document.getElementById('surveyForm').classList.add('hidden');
+      document.getElementById('submittedView').classList.remove('hidden');
+    }
+
+    document.getElementById('btnResetTest').addEventListener('click', () => {
+      localStorage.removeItem(LOCAL_STORAGE_KEY);
+      location.reload();
+    });
+
+    document.querySelectorAll('.rating-btn').forEach(button => {
+      button.addEventListener('click', () => {
+        const parent = button.parentElement;
+        const qId = parent.getAttribute('data-question');
+        const score = parseInt(button.getAttribute('data-score'), 10);
+
+        parent.querySelectorAll('.rating-btn').forEach(b => b.classList.remove('active'));
+        button.classList.add('active');
+
+        scores[qId] = score;
+        updateProgress();
+      });
+    });
+
+    function updateProgress() {
+      const answered = Object.values(scores).filter(v => v !== null).length;
+      document.getElementById('progressText').innerText = answered + ' / 5 ข้อ';
+      if (answered === 5) {
+        document.getElementById('errorAlert').classList.add('hidden');
+      }
+    }
+
+    document.getElementById('surveyForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const unanswered = Object.keys(scores).filter(k => scores[k] === null);
+      if (unanswered.length > 0) {
+        document.getElementById('errorAlert').classList.remove('hidden');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+      }
+
+      const suggestion = document.getElementById('suggestion').value.trim();
+      const submitBtn = document.getElementById('btnSubmit');
+      submitBtn.disabled = true;
+      submitBtn.innerText = 'กำลังส่งข้อมูล...';
+
+      const overall = parseFloat(((scores.q1 + scores.q2 + scores.q3 + scores.q4 + scores.q5) / 5).toFixed(2));
+      const payload = {
+        timestamp: Date.now(),
+        dateStr: new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }),
+        scores: scores,
+        overallScore: overall,
+        suggestion: suggestion
+      };
+
+      try {
+        if (db) {
+          await db.ref('surveys').push(payload);
+        } else {
+          const localList = JSON.parse(localStorage.getItem('offline_surveys') || '[]');
+          localList.push(payload);
+          localStorage.setItem('offline_surveys', JSON.stringify(localList));
+        }
+
+        localStorage.setItem(LOCAL_STORAGE_KEY, 'true');
+
+        if (window.confetti) {
+          window.confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
+        }
+
+        document.getElementById('surveyForm').classList.add('hidden');
+        document.getElementById('submittedView').classList.remove('hidden');
+
+      } catch (err) {
+        alert('เกิดข้อผิดพลาดในการบันทึกข้อมูล: ' + err.message);
+        submitBtn.disabled = false;
+        submitBtn.innerText = 'ส่งแบบประเมินความพึงพอใจ →';
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+{
+  "name": "Live Workshop Feedback & Projector Dashboard",
+  "description": "ระบบประเมินความพึงพอใจการอบรมแบบเรียลไทม์ พร้อมหน้าสแกนตอบสำหรับมือถือ และหน้าแดชบอร์ดสถิติขึ้นจอโปรเจกเตอร์",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
